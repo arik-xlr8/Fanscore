@@ -158,6 +158,37 @@
   font-weight: 900;
 }
 
+.all-teams{
+  font-size: 14px;
+  font-weight: 600;
+  margin-left: auto;
+  color: white;
+  background-color: goldenrod;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: underline;
+  border: 2px solid goldenrod;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.all-teams:hover{
+  background-color: rgb(199, 150, 26);
+  border: 2px solid rgb(199, 150, 26);
+}
+
+.all-teams i{
+  margin-left: 3px;
+  font-size: 13px;
+}
+
+.side-header h2{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
 .match-meta{
   display: flex;
   justify-content: space-between;
