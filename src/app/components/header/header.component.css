@@ -12,7 +12,7 @@ nav{
   justify-content: space-between;
   font-size: 14px;
   font-weight: 600;
-  padding: 30px 0px;
+  padding: 25px 0px;
 }
 
 .part-header{
@@ -121,7 +121,9 @@ nav{
 }
 
 .logo-container img{
-  height: 40px;
+  height: 55px;
+  position: relative;
+  bottom: 6px;
 }
 
 .logo-container{
@@ -129,4 +131,10 @@ nav{
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+a{
+  text-decoration: none;
+  display: block;
+  color: inherit;
 }

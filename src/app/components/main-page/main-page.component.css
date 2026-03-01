@@ -162,24 +162,28 @@
   font-size: 14px;
   font-weight: 600;
   margin-left: auto;
-  color: white;
-  background-color: goldenrod;
+  color: rgb(0, 160, 8);
+  background-color: white;
   padding: 10px 12px;
   border-radius: 10px;
   text-decoration: underline;
-  border: 2px solid goldenrod;
   cursor: pointer;
   transition: 0.15s;
 }
 
 .all-teams:hover{
-  background-color: rgb(199, 150, 26);
-  border: 2px solid rgb(199, 150, 26);
+  background-color: #f8f8f8;
 }
 
 .all-teams i{
   margin-left: 3px;
   font-size: 13px;
+}
+
+a{
+  text-decoration: none;
+  display: block;
+  color: inherit;
 }
 
 .side-header h2{

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { RouterModule } from '@angular/router';
 type Player = {
   id: number;
   name: string;
@@ -12,7 +13,7 @@ type Player = {
 @Component({
   selector: 'app-main-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './main-page.component.html',
   styleUrl: './main-page.component.css'
 })
