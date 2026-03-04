@@ -1,4 +1,54 @@
-<header>
+<header style="position: fixed; z-index: 1; width: 100%;">
+    <nav>
+        <div class="left-header part-header">
+            <a routerLink="/" class="logo-container d">
+                <img src="../../../assets/images/Fanscore Logo.png" alt="">
+                <span>Fanscore</span>
+            </a>
+
+            <div class="activities d">
+                <a routerLink="/merch" class="merch btn-style">
+                    🛍️ Merch
+                </a>
+
+                <a routerLink="/hali-saha" class="tournements btn-style">
+                    ⚽ Halısaha Ayarla
+                </a>
+            </div>
+        </div>
+
+        <div class="right-header part-header d">
+            <div class="search-container">
+                <input type="text" placeholder="🔍 Bir Oyuncu veya Takım Arayın...">
+            </div>
+
+            <div class="trend-ratio">
+
+            </div>
+
+            <div class="actions d btn-style">
+
+                <div class="view btn-style">
+                    Görünüm
+                </div>
+
+                <div class="shuffle btn-style">
+                    🔀 Karıştır
+                </div>
+
+                <div class="reset-trends btn-style">
+                    🔥 Trendler
+                </div>
+            </div>
+
+            <a routerLink="/login" class="login-btn btn-style">
+                <i style="margin-right: 7px; font-size: 14px;" class="fa-solid fa-user"></i>Giriş Yap
+            </a>
+        </div>
+    </nav>
+</header>
+
+<header style="opacity: 0; pointer-events: none; position: relative; z-index: 0;">
     <nav>
         <div class="left-header part-header">
             <a routerLink="/" class="logo-container d">
