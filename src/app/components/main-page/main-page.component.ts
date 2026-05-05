@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PlayerService } from '../../services/player.service';
 import { HeatmapPlayer, PeriodKey, Player, ViewMode } from '../../../models/player';
@@ -17,6 +17,8 @@ import { RecentMatch } from '../../../models/recent-match';
 export class MainPageComponent implements OnInit, OnDestroy {
   private playerService = inject(PlayerService);
   private matchService = inject(MatchService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   players: HeatmapPlayer[] = [];
   recentMatches: RecentMatch[] = [];
@@ -30,6 +32,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
+  private routeSubscription?: Subscription;
 
   periods: { key: PeriodKey; label: string }[] = [
     { key: 'daily', label: 'Günlük' },
@@ -43,12 +46,13 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupSearch();
-    this.getPlayers();
+    this.readPeriodFromUrl();
     this.getRecentMatches();
   }
 
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe();
+    this.routeSubscription?.unsubscribe();
   }
 
   trackById = (_: number, p: HeatmapPlayer) => p.id;
@@ -59,8 +63,12 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   selectPeriod(period: PeriodKey): void {
     if (this.selectedPeriod === period) return;
-    this.selectedPeriod = period;
-    this.getPlayers();
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { period },
+      queryParamsHandling: 'merge'
+    });
   }
 
   selectMode(mode: ViewMode): void {
@@ -91,6 +99,20 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   onHeatmapScroll(_e: Event): void {
     // Şimdilik backend'den hepsini tek seferde çekiyoruz.
+  }
+
+  private readPeriodFromUrl(): void {
+    this.routeSubscription = this.route.queryParamMap.subscribe(params => {
+      const periodFromUrl = params.get('period') as PeriodKey | null;
+
+      const isValidPeriod = this.periods.some(p => p.key === periodFromUrl);
+
+      this.selectedPeriod = isValidPeriod && periodFromUrl
+        ? periodFromUrl
+        : 'monthly';
+
+      this.getPlayers();
+    });
   }
 
   private setupSearch(): void {
