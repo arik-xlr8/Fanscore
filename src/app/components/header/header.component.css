@@ -15,28 +15,29 @@
 }
 
 nav {
-  width: 65%;
+  width: min(1120px, calc(100% - 32px));
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(40px);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(22px) saturate(140%);
   font-size: 14px;
   font-weight: 600;
   padding: 12px 24px;
   margin: 0;
 
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(15, 23, 42, 0.1);
 
   position: relative;
-  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 16px 42px rgba(15, 23, 42, 0.1);
 }
 
 .teams-btn{
   background-color: white;
-  border: 2px solid red;
+  border: 1px solid rgba(220, 38, 38, 0.18);
   margin-right: 10px;
-  color: red;
+  color: #b91c1c;
   font-size: 13px;
 }
 
@@ -57,6 +58,20 @@ nav {
   gap: 20px;
   position: relative;
   z-index: 3;
+}
+
+.menu-toggle{
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 12px;
+  background: #ffffff;
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 18px;
+  position: relative;
+  z-index: 4;
 }
 
 .d{
@@ -94,13 +109,13 @@ nav {
 }
 
 .merch{
-  text-decoration: underline;
-  color: rgb(82, 82, 82);
+  text-decoration: none;
+  color: #334155;
 }
 
 .tournements{
-  text-decoration: underline;
-  color: rgb(82, 82, 82);
+  text-decoration: none;
+  color: #334155;
 }
 
 .search-container input{
@@ -113,7 +128,7 @@ nav {
 .view{
   font-size: 13px;
   font-weight: 500;
-  color: #686868;
+  color: #64748b;
 }
 
 .shuffle{
@@ -127,11 +142,16 @@ nav {
 
 .login-btn{
   background-color: white;
-  color: green;
-  border-radius: 5px;
-  border: 2px solid transparent;
-  text-decoration: underline;
+  color: #15803d;
+  border-radius: 8px;
+  border: 1px solid rgba(22, 163, 74, 0.18);
+  text-decoration: none;
   font-size: 13px;
+}
+
+.login-btn--danger{
+  color: #b91c1c;
+  border-color: rgba(220, 38, 38, 0.18);
 }
 
 .merch,
@@ -152,8 +172,8 @@ nav {
 
 .l-m-btn{
   color: white;
-  background-color: #0d7a0d;
-  border: 2px solid #0d7a0d;
+  background-color: #15803d;
+  border: 1px solid #15803d;
   margin-right: 10px;
   font-size: 13px;
 }
@@ -187,4 +207,106 @@ a{
   text-decoration: none;
   display: block;
   color: inherit;
+}
+
+.right-header i{
+  margin-right: 7px;
+  font-size: 14px;
+}
+
+@media (max-width: 980px){
+  .main-header{
+    align-items: flex-start;
+    padding: 10px 0;
+  }
+
+  nav{
+    min-height: 66px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    border-radius: 22px;
+  }
+
+  .logo-container{
+    border-right: none;
+    padding-right: 0;
+  }
+
+  .logo-container span{
+    font-size: 17px;
+  }
+
+  .logo-container img{
+    height: 40px;
+  }
+
+  .left-header{
+    flex: 1;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+
+  .menu-toggle{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+  }
+
+  .activities,
+  .right-header{
+    display: none;
+    width: 100%;
+  }
+
+  nav.nav--open .activities,
+  nav.nav--open .right-header{
+    display: flex;
+  }
+
+  nav.nav--open .left-header{
+    flex-wrap: wrap;
+  }
+
+  nav.nav--open .activities{
+    flex-basis: 100%;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    justify-content: stretch;
+    gap: 8px;
+  }
+
+  nav.nav--open .right-header{
+    order: 4;
+    margin-top: 8px;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .activities .btn-style,
+  .right-header .btn-style{
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin: 0;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 520px){
+  nav{
+    width: calc(100% - 20px);
+  }
+
+  nav.nav--open .activities{
+    flex-direction: column;
+  }
 }

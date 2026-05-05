@@ -82,13 +82,15 @@
 }
 
 .pill--up{
-  border-color: greenyellow;
-  color: green;
+  border-color: rgba(22, 163, 74, .32);
+  background: rgba(22, 163, 74, .08);
+  color: #15803d;
 }
 
 .pill--down{
-  border-color: rgb(255, 0, 43);
-  color: rgb(159, 18, 58);
+  border-color: rgba(220, 38, 38, .26);
+  background: rgba(220, 38, 38, .08);
+  color: #b91c1c;
 }
 
 .subRow{
@@ -599,7 +601,7 @@
 }
 
 .fa-thumbs-down{
-  color: red;
+  color: #dc2626;
 }
 
 i{
@@ -654,9 +656,9 @@ i{
 
 .filterBtn--active {
   background: white;
-  color: green;
-  border: 2px solid greenyellow;
-  text-decoration: underline;
+  color: #15803d;
+  border: 1px solid rgba(22, 163, 74, .32);
+  text-decoration: none;
 }
 
 

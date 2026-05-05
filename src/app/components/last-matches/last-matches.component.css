@@ -1,6 +1,6 @@
 .last-matches-page {
   min-height: 100vh;
-  padding: 42px 24px;
+  padding: 116px 24px 42px;
   background:
     radial-gradient(circle at top left, rgba(34, 197, 94, 0.16), transparent 32%),
     linear-gradient(180deg, #f8fafc 0%, #eef3f0 100%);
@@ -217,7 +217,7 @@
 
 @media (max-width: 650px) {
   .last-matches-page {
-    padding: 28px 14px;
+    padding: 96px 14px 28px;
   }
 
   .matches-grid {

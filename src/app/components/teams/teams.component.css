@@ -1,7 +1,18 @@
+.team-container,
+:host > div {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+:host > div {
+  padding-top: 100px;
+}
+
 .team-container {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 22px;
+  padding-top: 100px;
 }
 
 .team-card {
@@ -56,8 +67,18 @@
 }
 
 @media (max-width: 768px) {
+  .team-container,
+  :host > div {
+    width: min(1180px, calc(100% - 32px));
+  }
+
+  :host > div {
+    padding-top: 92px;
+  }
+
   .team-container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding-top: 92px;
   }
 }
 

@@ -299,10 +299,8 @@ export class MainPageComponent implements OnInit, OnDestroy {
   }
 
   getBorderColor(change: number): string {
-    const clamped = Math.max(-100, Math.min(100, change));
-    const hue = 60 + (clamped * 60) / 100;
-    const light = 45 + Math.min(Math.abs(change), 100) * 0.2;
-
-    return `hsl(${hue}, 85%, ${light}%)`;
+    if (change > 0) return 'rgba(22, 163, 74, 0.72)';
+    if (change < 0) return 'rgba(220, 38, 38, 0.58)';
+    return 'rgba(15, 23, 42, 0.18)';
   }
 }

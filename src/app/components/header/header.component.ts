@@ -15,6 +15,7 @@ import { Observable } from 'rxjs';
 export class HeaderComponent implements OnInit{
   currentUser$: Observable<MeResponse | null>;
   isLoggedIn$ : Observable<boolean>;
+  isMenuOpen = false;
 
 
   constructor(private authService: AuthService, private router: Router) {
@@ -25,7 +26,16 @@ export class HeaderComponent implements OnInit{
   ngOnInit(): void {
   }
 
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
+  }
+
   onLogout(): void {
+  this.closeMenu();
   this.authService.logout().subscribe({
     next: () => {
       this.router.navigateByUrl('/login');
