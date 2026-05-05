@@ -43,6 +43,16 @@
         <span>Giriş Yap</span>
       </a>
 
+      <button
+        type="button"
+        *ngIf="shouldShowFriendButton()"
+        class="friend-toggle btn-style"
+        aria-label="Arkadas panelini ac"
+        (click)="toggleFriendPanel()"
+      >
+        <i class="fa-solid" [class.fa-user-group]="friends.length > 0" [class.fa-user-plus]="friends.length === 0"></i>
+      </button>
+
       <a *ngIf="isLoggedIn$ | async" routerLink="/profile" class="login-btn btn-style" (click)="closeMenu()">
         <i class="fa-solid fa-user"></i>
         <span>Profil</span>
@@ -64,4 +74,114 @@
       </a>
     </div>
   </nav>
+
+  <section class="friend-panel" *ngIf="isFriendPanelOpen">
+    <div class="friend-panel__header">
+      <strong>Arkadaslar</strong>
+      <button type="button" aria-label="Arkadas panelini kapat" (click)="closeFriendPanel()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="friend-search">
+      <input
+        type="search"
+        [(ngModel)]="friendSearchTerm"
+        (ngModelChange)="searchFriends()"
+        placeholder="Kullanici ara"
+      >
+    </div>
+
+    <div class="friend-message friend-message--error" *ngIf="friendPanelError">
+      {{ friendPanelError }}
+    </div>
+
+    <div class="friend-message friend-message--success" *ngIf="friendPanelMessage">
+      {{ friendPanelMessage }}
+    </div>
+
+    <div class="friend-list" *ngIf="friendSearchResults.length > 0">
+      <div class="friend-row" *ngFor="let user of friendSearchResults">
+        <img [src]="user.profilePic || '../../../assets/images/Ekran Alıntısı.PNG'" [alt]="friendDisplayName(user)">
+        <div>
+          <strong>{{ friendDisplayName(user) }}</strong>
+          <span *ngIf="!user.status">{{ user.userName || 'Fanscore kullanicisi' }}</span>
+          <span *ngIf="user.isOutgoingRequest">Istek gonderildi</span>
+          <span *ngIf="user.isIncomingRequest">Sana istek gonderdi</span>
+          <span *ngIf="user.status === 'Accepted'">Arkadasin</span>
+        </div>
+        <button type="button" (click)="addFriend(user)" [disabled]="!!user.status">
+          <i class="fa-solid fa-user-plus"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="friend-panel__subhead" *ngIf="incomingRequests.length > 0">Gelen Istekler</div>
+
+    <div class="friend-list" *ngIf="incomingRequests.length > 0">
+      <div class="friend-row friend-row--stack" *ngFor="let request of incomingRequests">
+        <div class="friend-row__main">
+          <img [src]="request.profilePic || '../../../assets/images/Ekran AlÄ±ntÄ±sÄ±.PNG'" [alt]="friendDisplayName(request)">
+          <div>
+            <strong>{{ friendDisplayName(request) }}</strong>
+            <span>{{ request.userName || 'Fanscore kullanicisi' }}</span>
+          </div>
+        </div>
+        <div class="friend-actions">
+          <button type="button" (click)="acceptFriendRequest(request)">
+            <i class="fa-solid fa-check"></i>
+          </button>
+          <button type="button" class="friend-danger" (click)="rejectFriendRequest(request)">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="friend-panel__subhead">Arkadas Listen</div>
+
+    <div class="friend-empty" *ngIf="!isFriendLoading && friends.length === 0">
+      Henuz arkadas eklemedin.
+    </div>
+
+    <div class="friend-list" *ngIf="friends.length > 0">
+      <div class="friend-row friend-row--stack" *ngFor="let friend of friends">
+        <div class="friend-row__main">
+          <img [src]="friend.profilePic || '../../../assets/images/Ekran Alıntısı.PNG'" [alt]="friendDisplayName(friend)">
+          <div>
+            <strong>{{ friendDisplayName(friend) }}</strong>
+            <span>{{ friend.userName || 'Fanscore kullanicisi' }}</span>
+          </div>
+        </div>
+        <div class="friend-actions">
+          <button type="button" (click)="showFriendRatings(friend)">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </button>
+          <button type="button" class="friend-danger" (click)="removeFriend(friend)">
+            <i class="fa-solid fa-user-minus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="friend-history" *ngIf="selectedFriendHistory">
+      <div class="friend-panel__subhead">
+        {{ friendDisplayName(selectedFriendHistory.friend) }} rating history
+      </div>
+
+      <div class="friend-empty" *ngIf="selectedFriendHistory.ratings.length === 0">
+        Bu arkadasin henuz rating gecmisi yok.
+      </div>
+
+      <div class="friend-rating" *ngFor="let rating of selectedFriendHistory.ratings">
+        <img [src]="rating.playerPhoto || '../../../assets/images/Ekran Alıntısı.PNG'" [alt]="rating.playerName">
+        <div>
+          <strong>{{ rating.playerName }}</strong>
+          <span>{{ formatFriendDate(rating.createdAt) }}</span>
+          <p *ngIf="rating.comment">{{ rating.comment }}</p>
+        </div>
+        <b>{{ rating.ratingValue }}</b>
+      </div>
+    </div>
+  </section>
 </header>
