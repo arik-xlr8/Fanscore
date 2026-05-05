@@ -34,6 +34,10 @@ export class HeaderComponent implements OnInit{
     this.isMenuOpen = false;
   }
 
+  isAdminToken(): boolean {
+    return this.authService.isCurrentTokenAdmin();
+  }
+
   onLogout(): void {
   this.closeMenu();
   this.authService.logout().subscribe({

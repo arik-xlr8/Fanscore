@@ -1,1 +1,272 @@
-<p>admin-panel works!</p>
+<main class="admin-shell">
+  <section class="admin-topbar">
+    <div>
+      <p class="eyebrow">Fanscore</p>
+      <h1>Admin Panel</h1>
+    </div>
+
+    <button type="button" class="refresh-btn" (click)="loadPanel()" [disabled]="loading">
+      <i class="fa-solid fa-rotate"></i>
+      Yenile
+    </button>
+  </section>
+
+  <div class="notice notice--error" *ngIf="errorMessage">{{ errorMessage }}</div>
+  <div class="notice notice--success" *ngIf="successMessage">{{ successMessage }}</div>
+
+  <nav class="admin-tabs" aria-label="Admin bolumleri">
+    <button type="button" [class.active]="activeTab === 'dashboard'" (click)="setTab('dashboard')">
+      <i class="fa-solid fa-chart-line"></i>
+      Dashboard
+    </button>
+    <button type="button" [class.active]="activeTab === 'users'" (click)="setTab('users')">
+      <i class="fa-solid fa-users"></i>
+      Kullanicilar
+    </button>
+    <button type="button" [class.active]="activeTab === 'products'" (click)="setTab('products')">
+      <i class="fa-solid fa-bag-shopping"></i>
+      Urunler
+    </button>
+    <button type="button" [class.active]="activeTab === 'halisahas'" (click)="setTab('halisahas')">
+      <i class="fa-solid fa-futbol"></i>
+      Hali Saha
+    </button>
+    <button type="button" [class.active]="activeTab === 'players'" (click)="setTab('players')">
+      <i class="fa-solid fa-person-running"></i>
+      Oyuncular
+    </button>
+  </nav>
+
+  <div class="loading" *ngIf="loading">Yukleniyor...</div>
+
+  <section class="stats-grid" *ngIf="activeTab === 'dashboard'">
+    <article class="stat-card">
+      <span>Kullanici</span>
+      <strong>{{ stats.userCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Banli Kullanici</span>
+      <strong>{{ stats.bannedUserCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Urun</span>
+      <strong>{{ stats.productCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Hali Saha Ilani</span>
+      <strong>{{ stats.halisahaCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Oyuncu</span>
+      <strong>{{ stats.playerCount }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Oy</span>
+      <strong>{{ stats.ratingCount }}</strong>
+    </article>
+  </section>
+
+  <section class="admin-section" *ngIf="activeTab === 'users'">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Kullanici</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Durum</th>
+            <th>Ban</th>
+            <th>Aksiyon</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.userId }}</td>
+            <td>
+              <strong>{{ user.name || user.userName || 'Isimsiz' }}</strong>
+              <span>{{ user.surname || user.phoneNumber || '-' }}</span>
+            </td>
+            <td>{{ user.email }}</td>
+            <td>
+              <select [ngModel]="user.role" (ngModelChange)="changeRole(user, $event)">
+                <option value="user">user</option>
+                <option value="admin">admin</option>
+              </select>
+            </td>
+            <td>
+              <span class="pill" [class.pill--danger]="user.isBanned">
+                {{ user.isBanned ? 'Banli' : 'Aktif' }}
+              </span>
+              <span>{{ user.isVerified ? 'Dogrulanmis' : 'Dogrulanmamis' }}</span>
+            </td>
+            <td>
+              <input type="text" [(ngModel)]="banReasons[user.userId]" [placeholder]="user.banReason || 'Ban sebebi'">
+            </td>
+            <td class="actions">
+              <button type="button" class="danger" *ngIf="!user.isBanned" (click)="banUser(user)">
+                <i class="fa-solid fa-ban"></i>
+              </button>
+              <button type="button" *ngIf="user.isBanned" (click)="unbanUser(user)">
+                <i class="fa-solid fa-unlock"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="admin-section" *ngIf="activeTab === 'products'">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Urun</th>
+            <th>Fiyat</th>
+            <th>Sehir</th>
+            <th>Takim</th>
+            <th>Durum</th>
+            <th>Aksiyon</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td>{{ product.productId }}</td>
+            <td>
+              <input type="text" [(ngModel)]="productEdits[product.productId].name">
+              <input type="text" [(ngModel)]="productEdits[product.productId].shortDescription" placeholder="Kisa aciklama">
+            </td>
+            <td><input type="number" min="0" [(ngModel)]="productEdits[product.productId].price"></td>
+            <td>
+              <select [(ngModel)]="productEdits[product.productId].cityId">
+                <option *ngFor="let city of cities" [ngValue]="city.cityId">{{ city.cityName }}</option>
+              </select>
+            </td>
+            <td>
+              <select [(ngModel)]="productEdits[product.productId].teamId">
+                <option [ngValue]="null">Takimsiz</option>
+                <option *ngFor="let team of teams" [ngValue]="team.teamId">{{ team.teamName }}</option>
+              </select>
+            </td>
+            <td>
+              <select [(ngModel)]="productEdits[product.productId].condition">
+                <option *ngFor="let condition of productConditions" [ngValue]="condition">{{ condition }}</option>
+              </select>
+            </td>
+            <td class="actions">
+              <button type="button" (click)="updateProduct(product)">
+                <i class="fa-solid fa-floppy-disk"></i>
+              </button>
+              <button type="button" class="danger" (click)="deleteProduct(product)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="admin-section" *ngIf="activeTab === 'halisahas'">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Ilan</th>
+            <th>Fiyat</th>
+            <th>Kisi</th>
+            <th>Sehir</th>
+            <th>Aksiyon</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hali of halisahas">
+            <td>{{ hali.haliSahaId }}</td>
+            <td>
+              <input type="text" [(ngModel)]="halisahaEdits[hali.haliSahaId].name">
+              <input type="text" [(ngModel)]="halisahaEdits[hali.haliSahaId].description" placeholder="Aciklama">
+            </td>
+            <td><input type="number" min="0" [(ngModel)]="halisahaEdits[hali.haliSahaId].price"></td>
+            <td><input type="number" min="2" [(ngModel)]="halisahaEdits[hali.haliSahaId].teamSize"></td>
+            <td>
+              <select [(ngModel)]="halisahaEdits[hali.haliSahaId].cityId">
+                <option *ngFor="let city of cities" [ngValue]="city.cityId">{{ city.cityName }}</option>
+              </select>
+            </td>
+            <td class="actions">
+              <button type="button" (click)="updateHalisaha(hali)">
+                <i class="fa-solid fa-floppy-disk"></i>
+              </button>
+              <button type="button" class="danger" (click)="deleteHalisaha(hali)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="admin-section" *ngIf="activeTab === 'players'">
+    <form class="player-form" (ngSubmit)="createPlayer()">
+      <input type="text" name="newName" [(ngModel)]="newPlayer.name" placeholder="Ad" required>
+      <input type="text" name="newSurname" [(ngModel)]="newPlayer.surname" placeholder="Soyad" required>
+      <select name="newTeam" [(ngModel)]="newPlayer.teamId">
+        <option [ngValue]="null">Takimsiz</option>
+        <option *ngFor="let team of teams" [ngValue]="team.teamId">{{ team.teamName }}</option>
+      </select>
+      <input type="number" name="newAge" min="10" max="60" [(ngModel)]="newPlayer.age" placeholder="Yas">
+      <input type="text" name="newPosition" [(ngModel)]="newPlayer.position" placeholder="Pozisyon">
+      <input type="url" name="newPpUrl" [(ngModel)]="newPlayer.ppUrl" placeholder="Foto URL">
+      <button type="submit">
+        <i class="fa-solid fa-plus"></i>
+        Ekle
+      </button>
+    </form>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Oyuncu</th>
+            <th>Takim</th>
+            <th>Yas</th>
+            <th>Pozisyon</th>
+            <th>Foto</th>
+            <th>Aksiyon</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let player of players">
+            <td>{{ player.playerId }}</td>
+            <td>
+              <input type="text" [(ngModel)]="playerEdits[player.playerId].name">
+              <input type="text" [(ngModel)]="playerEdits[player.playerId].surname">
+            </td>
+            <td>
+              <select [(ngModel)]="playerEdits[player.playerId].teamId">
+                <option [ngValue]="null">Takimsiz</option>
+                <option *ngFor="let team of teams" [ngValue]="team.teamId">{{ team.teamName }}</option>
+              </select>
+            </td>
+            <td><input type="number" min="10" max="60" [(ngModel)]="playerEdits[player.playerId].age"></td>
+            <td><input type="text" [(ngModel)]="playerEdits[player.playerId].position"></td>
+            <td><input type="url" [(ngModel)]="playerEdits[player.playerId].ppUrl"></td>
+            <td class="actions">
+              <button type="button" (click)="updatePlayer(player)">
+                <i class="fa-solid fa-floppy-disk"></i>
+              </button>
+              <button type="button" class="danger" (click)="deletePlayer(player)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

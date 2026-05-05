@@ -15,6 +15,7 @@ import { ProfileComponent } from './components/profile/profile.component';
 import { HalisahaCreateComponent } from './components/halisaha-create/halisaha-create.component';
 import { LastMatchesComponent } from './components/last-matches/last-matches.component';
 import { ProductCreateComponent } from './components/product-create/product-create.component';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
     {path: '', component: MainPageComponent},
@@ -26,7 +27,7 @@ export const routes: Routes = [
     {path: 'login', component: LoginComponent},
     {path: 'register', component: RegisterComponent},
     {path: 'reset-password', component: ResetPasswordComponent},
-    {path: 'admin-panel', component: AdminPanelComponent},
+    {path: 'admin-panel', component: AdminPanelComponent, canActivate: [adminGuard]},
     {path: 'teams', component: TeamsComponent},
     {path: 'teams/:teamid', component: TeamDetailsComponent},
     {path: 'profile', component: ProfileComponent},

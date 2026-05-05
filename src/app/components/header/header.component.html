@@ -48,6 +48,11 @@
         <span>Profil</span>
       </a>
 
+      <a *ngIf="isAdminToken()" routerLink="/admin-panel" class="login-btn btn-style" (click)="closeMenu()">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Admin</span>
+      </a>
+
       <a
         *ngIf="isLoggedIn$ | async"
         routerLink="/login"

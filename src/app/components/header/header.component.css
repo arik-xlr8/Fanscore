@@ -192,6 +192,11 @@ nav {
 
 .logo-container img{
   height: 45px;
+  width: auto;
+  max-width: 45px;
+  aspect-ratio: 1;
+  object-fit: contain;
+  flex: 0 0 auto;
   position: relative;
   bottom: 6px;
 }
@@ -239,6 +244,7 @@ a{
 
   .logo-container img{
     height: 40px;
+    max-width: 40px;
   }
 
   .left-header{
