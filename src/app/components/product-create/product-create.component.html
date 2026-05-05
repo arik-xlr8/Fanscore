@@ -1,9 +1,36 @@
 <div class="page">
   <div class="shell">
+    <div
+      class="message-popup"
+      *ngIf="showMessagePopup"
+      [class.message-popup--success]="popupType === 'success'"
+      [class.message-popup--error]="popupType === 'error'"
+    >
+      <div class="message-popup__content">
+        <div class="message-popup__title">
+          {{ popupType === 'success' ? 'Başarılı' : 'Uyarı' }}
+        </div>
+
+        <div class="message-popup__text">
+          {{ popupMessage }}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="message-popup__close"
+        (click)="closeMessagePopup()"
+        aria-label="Mesajı kapat"
+      >
+        ×
+      </button>
+    </div>
+
     <section class="hero">
       <div class="heroTop">
         <div>
           <div class="title">Ürün İlanı Oluştur</div>
+
           <div class="subtitle">
             Taraftar ürününü satışa çıkar, şehir, takım ve ürün durumunu belirle.
           </div>
@@ -20,46 +47,91 @@
         <div class="fieldGrid">
           <div class="field field--full">
             <label>Ürün Adı</label>
-            <input formControlName="name" placeholder="Örn: Galatasaray 2023 Forma" />
-            <small *ngIf="form.controls.name.touched && form.controls.name.invalid">
-              Ürün adı zorunludur.
+
+            <input
+              formControlName="name"
+              placeholder="Örn: Galatasaray 2023 Forma"
+              [class.inputError]="isFieldInvalid('name')"
+            />
+
+            <small *ngIf="isFieldInvalid('name')">
+              <span *ngIf="form.controls.name.hasError('required')">
+                Ürün adı zorunludur.
+              </span>
+
+              <span *ngIf="form.controls.name.hasError('maxlength')">
+                Ürün adı en fazla 120 karakter olabilir.
+              </span>
             </small>
           </div>
 
           <div class="field">
             <label>Fiyat (₺)</label>
-            <input type="number" formControlName="price" min="1" step="0.01" placeholder="Örn: 1250" />
-            <small *ngIf="form.controls.price.touched && form.controls.price.invalid">
-              Fiyat zorunludur.
+
+            <input
+              type="number"
+              formControlName="price"
+              min="1"
+              step="0.01"
+              placeholder="Örn: 1250"
+              [class.inputError]="isFieldInvalid('price')"
+            />
+
+            <small *ngIf="isFieldInvalid('price')">
+              <span *ngIf="form.controls.price.hasError('required')">
+                Fiyat zorunludur.
+              </span>
+
+              <span *ngIf="form.controls.price.hasError('min')">
+                Fiyat en az 1 ₺ olmalıdır.
+              </span>
             </small>
           </div>
 
           <div class="field">
             <label>Durum</label>
-            <select formControlName="condition">
-              <option *ngFor="let c of conditions" [value]="c">{{ c }}</option>
+
+            <select
+              formControlName="condition"
+              [class.inputError]="isFieldInvalid('condition')"
+            >
+              <option *ngFor="let c of conditions" [value]="c">
+                {{ formatCondition(c) }}
+              </option>
             </select>
+
+            <small *ngIf="isFieldInvalid('condition')">
+              Ürün durumu seçmek zorunludur.
+            </small>
           </div>
 
           <div class="field">
             <label>Şehir</label>
-            <select formControlName="cityId">
+
+            <select
+              formControlName="cityId"
+              [class.inputError]="isFieldInvalid('cityId')"
+            >
               <option [ngValue]="null">
                 {{ cities.length === 0 ? 'Şehirler yüklenemedi' : 'Şehir seç' }}
               </option>
+
               <option *ngFor="let c of cities" [ngValue]="c.cityId">
                 {{ c.cityName }}
               </option>
             </select>
-            <small *ngIf="form.controls.cityId.touched && form.controls.cityId.invalid">
+
+            <small *ngIf="isFieldInvalid('cityId')">
               Şehir seçmek zorunludur.
             </small>
           </div>
 
           <div class="field">
             <label>Takım</label>
+
             <select formControlName="teamId">
               <option [ngValue]="null">Takım yok</option>
+
               <option *ngFor="let t of teams" [ngValue]="t.teamId">
                 {{ t.teamName }}
               </option>
@@ -68,11 +140,21 @@
 
           <div class="field field--full">
             <label>Kısa Açıklama</label>
-            <input formControlName="shortDescription" placeholder="Kartta gözükecek kısa açıklama" />
+
+            <input
+              formControlName="shortDescription"
+              placeholder="Kartta gözükecek kısa açıklama"
+              [class.inputError]="isFieldInvalid('shortDescription')"
+            />
+
+            <small *ngIf="isFieldInvalid('shortDescription')">
+              Kısa açıklama en fazla 255 karakter olabilir.
+            </small>
           </div>
 
           <div class="field field--full">
             <label>Açıklama</label>
+
             <textarea
               formControlName="description"
               rows="6"
@@ -83,6 +165,7 @@
           <div class="field field--full">
             <div class="pictureHeader">
               <label>Fotoğraflar</label>
+
               <button type="button" class="smallBtn" (click)="addFileInput()">
                 {{ fileInputs.length === 0 ? '+ Foto Ekle' : 'Foto Sayısını Arttır' }}
               </button>
@@ -99,7 +182,7 @@
               >
                 <input
                   type="file"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png,.webp"
                   (change)="onSingleFileSelected($event, i)"
                 />
 

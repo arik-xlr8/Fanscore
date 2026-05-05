@@ -27,6 +27,7 @@
 
   <div class="rating-panel__header">
     <h3 class="rating-panel__title">Fiyat Tahmini Yap</h3>
+
     <p class="rating-panel__subtitle">
       Oyuncunun piyasa değeri seçtiğiniz zaman aralığında kaç milyon € eder?
     </p>
@@ -81,10 +82,7 @@
         {{ availabilityMessage }}
       </div>
 
-      <div
-        class="vote-info__message"
-        *ngIf="nextAvailableText"
-      >
+      <div class="vote-info__message" *ngIf="nextAvailableText">
         {{ nextAvailableText }}
       </div>
     </div>
@@ -102,7 +100,7 @@
     <button
       type="button"
       class="btn btn--primary"
-      [disabled]="!canSubmit"
+      [disabled]="isSubmitting || isCheckingAvailability"
       (click)="submitVote()"
     >
       {{ isSubmitting ? 'Gönderiliyor...' : 'Oyu Gönder' }}

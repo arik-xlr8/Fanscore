@@ -1,5 +1,31 @@
 <div class="page">
   <div class="shell">
+    <div
+      class="message-popup"
+      *ngIf="showMessagePopup"
+      [class.message-popup--success]="popupType === 'success'"
+      [class.message-popup--error]="popupType === 'error'"
+    >
+      <div class="message-popup__content">
+        <div class="message-popup__title">
+          {{ popupType === 'success' ? 'Başarılı' : 'Uyarı' }}
+        </div>
+
+        <div class="message-popup__text">
+          {{ popupMessage }}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="message-popup__close"
+        (click)="closeMessagePopup()"
+        aria-label="Mesajı kapat"
+      >
+        ×
+      </button>
+    </div>
+
     <div *ngIf="isLoading" class="sectionHint">Profil yükleniyor...</div>
     <div *ngIf="error && !isLoading" class="sectionHint">{{ error }}</div>
     <div *ngIf="success" class="sectionSuccess">{{ success }}</div>
@@ -12,29 +38,68 @@
           </div>
 
           <div class="profilePhotoActions">
-            <label class="uploadBtn">
-              Fotoğraf Seç
-              <input type="file" accept=".jpg,.jpeg,.png,.webp" hidden (change)="onPhotoSelected($event)" />
+            <label class="uploadBtn" [class.uploadBtn--disabled]="isUploading">
+              {{ isUploading ? 'Yükleniyor...' : 'Fotoğraf Seç' }}
+
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                hidden
+                [disabled]="isUploading"
+                (change)="onPhotoSelected($event)"
+              />
             </label>
 
-            <div class="sectionHint" *ngIf="isUploading">Fotoğraf yükleniyor...</div>
+            <div class="sectionHint" *ngIf="isUploading">
+              Fotoğraf yükleniyor...
+            </div>
           </div>
         </div>
 
         <form [formGroup]="form" (ngSubmit)="save()" class="profileForm">
           <div class="formRow">
             <label>Ad</label>
-            <input type="text" formControlName="name" />
+
+            <input
+              type="text"
+              formControlName="name"
+              [class.inputError]="isFieldInvalid('name')"
+              placeholder="Adınızı girin"
+            />
+
+            <div class="fieldError" *ngIf="isFieldInvalid('name')">
+              Ad alanı zorunludur.
+            </div>
           </div>
 
           <div class="formRow">
             <label>Soyad</label>
-            <input type="text" formControlName="surname" />
+
+            <input
+              type="text"
+              formControlName="surname"
+              [class.inputError]="isFieldInvalid('surname')"
+              placeholder="Soyadınızı girin"
+            />
+
+            <div class="fieldError" *ngIf="isFieldInvalid('surname')">
+              Soyad alanı zorunludur.
+            </div>
           </div>
 
           <div class="formRow">
             <label>Kullanıcı Adı</label>
-            <input type="text" formControlName="userName" />
+
+            <input
+              type="text"
+              formControlName="userName"
+              [class.inputError]="isFieldInvalid('userName')"
+              placeholder="Kullanıcı adınızı girin"
+            />
+
+            <div class="fieldError" *ngIf="isFieldInvalid('userName')">
+              Kullanıcı adı zorunludur.
+            </div>
           </div>
 
           <button type="submit" class="saveBtn" [disabled]="isSaving">
@@ -59,6 +124,7 @@
                   [alt]="rating.playerName"
                   class="ratingPlayerImg"
                 />
+
                 <div>
                   <div class="ratingPlayerName">{{ rating.playerName }}</div>
                   <div class="ratingDate">{{ formatDate(rating.createdAt) }}</div>

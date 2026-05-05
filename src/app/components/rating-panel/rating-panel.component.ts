@@ -32,13 +32,10 @@ export class RatingPanelComponent implements OnInit, OnChanges {
 
   @Input({ required: true }) playerId!: number;
 
-  // PlayerComponent'ten gelen URL period'u
   @Input() selectedPeriod: RatingPeriodType = 'monthly';
 
   @Output() closed = new EventEmitter<void>();
   @Output() submitted = new EventEmitter<void>();
-
-  // Selectbox değişince PlayerComponent'e haber verip URL'yi güncellemek için
   @Output() periodChanged = new EventEmitter<RatingPeriodType>();
 
   periods: { key: RatingPeriodType; label: string }[] = [
@@ -109,9 +106,12 @@ export class RatingPanelComponent implements OnInit, OnChanges {
       error: (err) => {
         console.error('Oy kullanılabilirlik kontrolü başarısız:', err);
 
-        const message = this.getErrorMessage(err, 'Oy hakkı kontrol edilemedi.');
-        this.setError(message);
+        const message = this.getErrorMessage(
+          err,
+          'Oy hakkı kontrol edilemedi.'
+        );
 
+        this.setError(message);
         this.isCheckingAvailability = false;
       }
     });
@@ -120,30 +120,44 @@ export class RatingPanelComponent implements OnInit, OnChanges {
   submitVote(): void {
     this.resetMessages();
 
+    if (this.isSubmitting || this.isCheckingAvailability) {
+      return;
+    }
+
     if (!this.playerId || this.playerId <= 0) {
       this.setError('Geçerli bir oyuncu bulunamadı.');
       return;
     }
 
-    if (this.ratingValue == null || Number.isNaN(this.ratingValue)) {
+    if (this.ratingValue === null || this.ratingValue === undefined) {
       this.setError('Lütfen bir değer gir.');
       return;
     }
 
-    if (this.ratingValue < 0 || this.ratingValue > 100) {
-      this.setError('Değer 0 ile 100 arasında olmalı.');
+    const numericRating = Number(this.ratingValue);
+
+    if (Number.isNaN(numericRating)) {
+      this.setError('Lütfen geçerli bir sayı gir.');
+      return;
+    }
+
+    if (numericRating < 0 || numericRating > 300) {
+      this.setError('Değer 0 ile 300 arasında olmalı.');
       return;
     }
 
     if (this.canVoteInfo && !this.canVoteInfo.canVote) {
-      this.setError(this.canVoteInfo.message || 'Bu zaman aralığı için şu an oy veremezsiniz.');
+      this.setError(
+        this.canVoteInfo.message ||
+          'Bu zaman aralığı için şu an oy veremezsiniz.'
+      );
       return;
     }
 
     const payload: CreateRatingRequest = {
       playerId: this.playerId,
       periodType: this.selectedPeriod,
-      ratingValue: this.ratingValue,
+      ratingValue: numericRating,
       comment: this.comment.trim() ? this.comment.trim() : null
     };
 
@@ -181,19 +195,36 @@ export class RatingPanelComponent implements OnInit, OnChanges {
   }
 
   clampRating(): void {
-    if (this.ratingValue == null) return;
+    if (this.ratingValue === null || this.ratingValue === undefined) return;
 
-    if (this.ratingValue < 0) this.ratingValue = 0;
-    if (this.ratingValue > 100) this.ratingValue = 100;
+    const numericRating = Number(this.ratingValue);
 
-    this.ratingValue = Math.round(this.ratingValue * 10) / 10;
+    if (Number.isNaN(numericRating)) {
+      this.ratingValue = null;
+      return;
+    }
+
+    let clampedValue = numericRating;
+
+    if (clampedValue < 0) clampedValue = 0;
+    if (clampedValue > 300) clampedValue = 300;
+
+    this.ratingValue = Math.round(clampedValue * 10) / 10;
   }
 
   get canSubmit(): boolean {
     if (this.isSubmitting || this.isCheckingAvailability) return false;
     if (!this.playerId || this.playerId <= 0) return false;
-    if (this.ratingValue == null || Number.isNaN(this.ratingValue)) return false;
-    if (this.ratingValue < 0 || this.ratingValue > 100) return false;
+
+    if (this.ratingValue === null || this.ratingValue === undefined) {
+      return false;
+    }
+
+    const numericRating = Number(this.ratingValue);
+
+    if (Number.isNaN(numericRating)) return false;
+    if (numericRating < 0 || numericRating > 300) return false;
+
     if (this.canVoteInfo && !this.canVoteInfo.canVote) return false;
 
     return true;

@@ -1,9 +1,36 @@
 <div class="page">
   <div class="shell">
+    <div
+      class="message-popup"
+      *ngIf="showMessagePopup"
+      [class.message-popup--success]="popupType === 'success'"
+      [class.message-popup--error]="popupType === 'error'"
+    >
+      <div class="message-popup__content">
+        <div class="message-popup__title">
+          {{ popupType === 'success' ? 'Başarılı' : 'Uyarı' }}
+        </div>
+
+        <div class="message-popup__text">
+          {{ popupMessage }}
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="message-popup__close"
+        (click)="closeMessagePopup()"
+        aria-label="Mesajı kapat"
+      >
+        ×
+      </button>
+    </div>
+
     <section class="hero">
       <div class="heroTop">
         <div>
           <div class="title">Halı Saha Oluştur</div>
+
           <div class="subtitle">
             Yeni bir maç ilanı aç, şehir ve takım boyutunu belirle, oyuncular seni kolayca bulsun.
           </div>
@@ -16,24 +43,38 @@
     </section>
 
     <section class="formCard">
-      <form class="form" (ngSubmit)="onSubmit()">
-
+      <form
+        class="form"
+        #halisahaForm="ngForm"
+        (ngSubmit)="onSubmit(halisahaForm)"
+      >
         <div class="fieldGrid">
-
-          <!-- NAME -->
           <div class="field field--full">
             <label for="name">Maç Adı</label>
+
             <input
               id="name"
               type="text"
               name="name"
               [(ngModel)]="model.name"
+              #name="ngModel"
               placeholder="Örn: Cumartesi Akşam 8'e 8 Maç"
               required
+              maxlength="120"
+              [class.inputError]="name.invalid && (name.dirty || name.touched)"
             />
+
+            <small *ngIf="name.invalid && (name.dirty || name.touched)">
+              <span *ngIf="name.errors?.['required']">
+                Maç adı zorunludur.
+              </span>
+
+              <span *ngIf="name.errors?.['maxlength']">
+                Maç adı en fazla 120 karakter olabilir.
+              </span>
+            </small>
           </div>
 
-          <!-- CITY SELECT -->
           <div class="field">
             <label for="cityId">Şehir</label>
 
@@ -41,7 +82,10 @@
               id="cityId"
               name="cityId"
               [(ngModel)]="model.cityId"
+              #cityId="ngModel"
               required
+              min="1"
+              [class.inputError]="cityId.invalid && (cityId.dirty || cityId.touched)"
             >
               <option [ngValue]="0">
                 {{ cities.length === 0 ? 'Şehirler yüklenemedi' : 'Şehir seç' }}
@@ -51,62 +95,75 @@
                 {{ city.cityName }}
               </option>
             </select>
+
+            <small *ngIf="cityId.invalid && (cityId.dirty || cityId.touched)">
+              Şehir seçmek zorunludur.
+            </small>
           </div>
 
-          <!-- TEAM SIZE -->
           <div class="field">
             <label for="teamSize">Takım Boyutu</label>
+
             <input
               id="teamSize"
               type="number"
               name="teamSize"
               [(ngModel)]="model.teamSize"
+              #teamSize="ngModel"
               min="1"
               placeholder="Örn: 10"
               required
+              [class.inputError]="teamSize.invalid && (teamSize.dirty || teamSize.touched)"
             />
+
+            <small *ngIf="teamSize.invalid && (teamSize.dirty || teamSize.touched)">
+              Takım boyutu en az 1 olmalıdır.
+            </small>
           </div>
 
-          <!-- PRICE -->
           <div class="field field--full">
             <label for="price">Maç Ücreti (₺)</label>
+
             <input
               id="price"
               type="number"
               name="price"
               [(ngModel)]="model.price"
+              #price="ngModel"
               min="0"
               step="0.01"
               placeholder="Örn: 150"
               required
+              [class.inputError]="price.invalid && (price.dirty || price.touched)"
             />
+
+            <small *ngIf="price.invalid && (price.dirty || price.touched)">
+              Maç ücreti 0 veya daha büyük olmalıdır.
+            </small>
           </div>
 
-          <!-- DESCRIPTION -->
           <div class="field field--full">
             <label for="description">Açıklama</label>
+
             <textarea
               id="description"
               name="description"
               [(ngModel)]="model.description"
               rows="6"
+              maxlength="1000"
               placeholder="Saat, konum, eksik oyuncu sayısı, zemin türü gibi detayları yaz..."
             ></textarea>
           </div>
-
         </div>
 
-        <!-- ERROR -->
         <div *ngIf="error" class="stateBox stateBox--error">
           {{ error }}
         </div>
 
-        <!-- SUCCESS -->
         <div *ngIf="success" class="stateBox stateBox--success">
           {{ success }}
         </div>
 
-        <!-- ACTIONS -->
         <div class="actions">
           <a routerLink="/halisaha" class="ghostBtn">
             Vazgeç
@@ -115,12 +172,11 @@
           <button
             type="submit"
             class="submitBtn"
-            [disabled]="loading"
+            [disabled]="halisahaForm.invalid || model.cityId <= 0 || loading"
           >
             {{ loading ? 'Oluşturuluyor...' : 'İlanı Oluştur' }}
           </button>
         </div>
-
       </form>
     </section>
   </div>
