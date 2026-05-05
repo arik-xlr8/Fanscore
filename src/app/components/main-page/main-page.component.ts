@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { PlayerService } from '../../services/player.service';
@@ -29,6 +29,12 @@ export class MainPageComponent implements OnInit, OnDestroy {
 
   selectedMode: ViewMode = 'trends';
   searchTerm = '';
+
+  page = 1;
+  pageSize = 100;
+  hasMore = true;
+
+  shuffleSeed = this.generateShuffleSeed();
 
   private searchSubject = new Subject<string>();
   private searchSubscription?: Subscription;
@@ -75,14 +81,15 @@ export class MainPageComponent implements OnInit, OnDestroy {
     if (mode === 'shuffle') {
       this.searchTerm = '';
       this.selectedMode = 'shuffle';
-      this.getPlayers();
+      this.shuffleSeed = this.generateShuffleSeed();
+      this.resetAndLoadPlayers();
       return;
     }
 
     if (this.selectedMode === mode && !this.searchTerm.trim()) return;
 
     this.selectedMode = mode;
-    this.getPlayers();
+    this.resetAndLoadPlayers();
   }
 
   onSearchInput(event: Event): void {
@@ -94,11 +101,37 @@ export class MainPageComponent implements OnInit, OnDestroy {
   clearSearch(): void {
     this.searchTerm = '';
     this.selectedMode = 'trends';
-    this.getPlayers();
+    this.resetAndLoadPlayers();
   }
 
-  onHeatmapScroll(_e: Event): void {
-    // Şimdilik backend'den hepsini tek seferde çekiyoruz.
+  onHeatmapScroll(event: Event): void {
+    const element = event.target as HTMLElement;
+
+    const threshold = 600;
+    const position = element.scrollTop + element.clientHeight;
+    const height = element.scrollHeight;
+
+    if (position >= height - threshold) {
+      this.loadNextPage();
+    }
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    const threshold = 600;
+
+    const scrollTop =
+      window.scrollY ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    if (scrollTop + windowHeight >= documentHeight - threshold) {
+      this.loadNextPage();
+    }
   }
 
   private readPeriodFromUrl(): void {
@@ -111,7 +144,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
         ? periodFromUrl
         : 'monthly';
 
-      this.getPlayers();
+      this.resetAndLoadPlayers();
     });
   }
 
@@ -126,7 +159,7 @@ export class MainPageComponent implements OnInit, OnDestroy {
           this.selectedMode = 'trends';
         }
 
-        this.getPlayers();
+        this.resetAndLoadPlayers();
       });
   }
 
@@ -142,37 +175,88 @@ export class MainPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  private getPlayers(): void {
+  private resetAndLoadPlayers(): void {
+    this.players = [];
+    this.page = 1;
+    this.hasMore = true;
+    this.isEnd = false;
+
+    this.loadPlayersPage();
+  }
+
+  private loadNextPage(): void {
+    if (this.isLoading || !this.hasMore) return;
+
+    this.page++;
+    this.loadPlayersPage();
+  }
+
+  private loadPlayersPage(): void {
+    if (this.isLoading || !this.hasMore) return;
+
     this.isLoading = true;
     this.isEnd = false;
 
     const trimmedSearch = this.searchTerm.trim();
 
     const request$ = trimmedSearch
-      ? this.playerService.searchPlayers(trimmedSearch, this.selectedPeriod)
+      ? this.playerService.searchPlayersPaged(
+          trimmedSearch,
+          this.selectedPeriod,
+          this.page,
+          this.pageSize
+        )
       : this.selectedMode === 'shuffle'
-      ? this.playerService.getShuffledPlayers(this.selectedPeriod)
-      : this.playerService.getAllPlayers(this.selectedPeriod);
+        ? this.playerService.getShuffledPlayersPaged(
+            this.selectedPeriod,
+            this.page,
+            this.pageSize,
+            this.shuffleSeed
+          )
+        : this.playerService.getAllPlayersPaged(
+            this.selectedPeriod,
+            this.page,
+            this.pageSize
+          );
 
     request$.subscribe({
-      next: (players: Player[]) => {
-        this.players = players.map((player) => this.mapToHeatmapPlayer(player));
+      next: (result) => {
+        console.log('Paged result:', result);
+
+        const mappedPlayers = result.items.map((player: Player) =>
+          this.mapToHeatmapPlayer(player)
+        );
+
+        this.players = [...this.players, ...mappedPlayers];
+
+        this.hasMore = result.hasMore;
+        this.isEnd = !result.hasMore;
         this.isLoading = false;
-        this.isEnd = true;
       },
       error: (err) => {
         console.error('Oyuncular alınamadı:', err);
-        this.players = [];
+
+        if (this.page === 1) {
+          this.players = [];
+        } else {
+          this.page--;
+        }
+
+        this.hasMore = false;
         this.isLoading = false;
         this.isEnd = true;
       }
     });
   }
 
+  private generateShuffleSeed(): number {
+    return Math.floor(Math.random() * 2_000_000_000);
+  }
+
   private mapToHeatmapPlayer(player: Player): HeatmapPlayer {
     return {
       id: player.playerId,
-      name: `${player.name} ${player.surname}`,
+      name: `${player.name} ${player.surname ?? ''}`.trim(),
       team: player.teamName ?? '-',
       position: player.position ?? '-',
       averageRating: player.averageRating ?? 0,

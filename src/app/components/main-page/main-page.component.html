@@ -1,11 +1,6 @@
 <div class="main-wrapper">
-
   <section class="heatmap-wrap" (scroll)="onHeatmapScroll($event)">
-
-
-
     <div class="heatmap-filters">
-
       <div class="view-mode-switch">
         <button
           type="button"
@@ -52,9 +47,9 @@
               [value]="searchTerm"
               (input)="onSearchInput($event)"
             />
+
             <i class="fa-solid fa-magnifying-glass"></i>
           </div>
-
 
           <button
             *ngIf="searchTerm"
@@ -69,7 +64,6 @@
     </div>
 
     <div class="heatmap">
-
       <div
         class="tile"
         *ngFor="let player of players; trackBy: trackById"
@@ -88,6 +82,7 @@
       >
         <div class="tile-top">
           <div class="badge">{{ player.team }}</div>
+
           <div [class]="getChangeClass(player.change)">
             {{ formatChange(player.change) }}
           </div>
@@ -96,24 +91,20 @@
         <div class="tile-bottom">
           <div class="player-specs">
             <div class="name">{{ player.name }}</div>
+
             <div class="sub">
-              <!-- <span>{{ player.position }}</span> <br> <br>  -->
               <span>{{ formatAverageRating(player.averageRating) }} €</span>
             </div>
-            <!-- <div class="sub">
-              Oy: {{ player.ratingCount }}
-            </div> -->
           </div>
         </div>
       </div>
-
     </div>
 
     <div class="loading" *ngIf="isLoading">
       Yükleniyor...
     </div>
 
-    <div class="end" *ngIf="isEnd && players.length > 0">
+    <div class="end" *ngIf="isEnd && !isLoading && players.length > 0">
       Hepsi bu kadar.
     </div>
 
@@ -121,38 +112,4 @@
       Sonuç bulunamadı.
     </div>
   </section>
-
-  <!-- <aside class="side-panel">
-
-    <div class="side-header">
-      <h2>
-        <span>Son Maçlar</span>
-        <a routerLink="/teams" class="all-teams">
-          Tüm Takımlar <i class="fa-solid fa-arrow-right"></i>
-        </a>
-      </h2>
-    </div>
-
-    <div class="side-content">
-      <div
-        class="match-card"
-        *ngFor="let match of recentMatches"
-      >
-        <div class="match-teams">
-          <span class="team">{{ match.home }}</span>
-          <span class="score">
-            {{ match.homeScore }} - {{ match.awayScore }}
-          </span>
-          <span class="team">{{ match.away }}</span>
-        </div>
-
-        <div class="match-meta">
-          <span>{{ match.date }}</span>
-          <span>{{ match.league }}</span>
-        </div>
-      </div>
-    </div>
-
-  </aside> -->
-
 </div>
