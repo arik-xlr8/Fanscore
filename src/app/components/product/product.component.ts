@@ -21,6 +21,8 @@ export class ProductComponent implements OnInit {
   selectedImage = '';
 
   ngOnInit(): void {
+    this.scrollToTop();
+
     const id = Number(this.route.snapshot.paramMap.get('productid'));
     if (id) {
       this.loadProduct(id);
@@ -43,6 +45,10 @@ export class ProductComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private scrollToTop(): void {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }
 
   selectImage(imageUrl: string): void {

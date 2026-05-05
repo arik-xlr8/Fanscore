@@ -20,6 +20,8 @@ export class HalisahaDetayComponent implements OnInit {
   errorMessage = '';
 
   ngOnInit(): void {
+    this.scrollToTop();
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.loadTournament(id);
@@ -43,6 +45,10 @@ export class HalisahaDetayComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private scrollToTop(): void {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }
 
   formatPrice(price: number): string {

@@ -51,6 +51,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   selectedPeriod: PeriodKey = 'monthly';
 
   ngOnInit(): void {
+    this.scrollToTop();
     this.readPeriodFromUrl();
     this.readPlayerIdFromUrl();
   }
@@ -97,6 +98,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (playerId: number) => {
+          this.scrollToTop();
           this.playerId = playerId;
           this.loadPlayer();
           this.loadComments();
@@ -106,6 +108,10 @@ export class PlayerComponent implements OnInit, OnDestroy {
           this.error = 'Oyuncu bilgileri yüklenemedi.';
         }
       });
+  }
+
+  private scrollToTop(): void {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }
 
   private loadPlayer(): void {
