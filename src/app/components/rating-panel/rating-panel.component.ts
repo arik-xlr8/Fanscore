@@ -18,6 +18,8 @@ import {
   VoteAvailability
 } from '../../../models/rating';
 
+type PopupType = 'success' | 'error';
+
 @Component({
   selector: 'app-rating-panel',
   standalone: true,
@@ -30,8 +32,14 @@ export class RatingPanelComponent implements OnInit, OnChanges {
 
   @Input({ required: true }) playerId!: number;
 
+  // PlayerComponent'ten gelen URL period'u
+  @Input() selectedPeriod: RatingPeriodType = 'monthly';
+
   @Output() closed = new EventEmitter<void>();
   @Output() submitted = new EventEmitter<void>();
+
+  // Selectbox değişince PlayerComponent'e haber verip URL'yi güncellemek için
+  @Output() periodChanged = new EventEmitter<RatingPeriodType>();
 
   periods: { key: RatingPeriodType; label: string }[] = [
     { key: 'daily', label: 'Günlük' },
@@ -41,7 +49,6 @@ export class RatingPanelComponent implements OnInit, OnChanges {
     { key: '1year', label: '1 Yıl' }
   ];
 
-  selectedPeriod: RatingPeriodType = '3months';
   ratingValue: number | null = null;
   comment = '';
 
@@ -53,6 +60,10 @@ export class RatingPanelComponent implements OnInit, OnChanges {
   error = '';
   successMessage = '';
 
+  showMessagePopup = false;
+  popupMessage = '';
+  popupType: PopupType = 'error';
+
   ngOnInit(): void {
     if (this.playerId > 0) {
       this.checkAvailability();
@@ -60,8 +71,9 @@ export class RatingPanelComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['playerId'] && !changes['playerId'].firstChange) {
+    if (changes['playerId'] || changes['selectedPeriod']) {
       this.resetMessages();
+
       if (this.playerId > 0) {
         this.checkAvailability();
       }
@@ -72,13 +84,15 @@ export class RatingPanelComponent implements OnInit, OnChanges {
     if (this.selectedPeriod === period) return;
 
     this.selectedPeriod = period;
+    this.periodChanged.emit(period);
+
     this.resetMessages();
     this.checkAvailability();
   }
 
   checkAvailability(): void {
     if (!this.playerId || this.playerId <= 0) {
-      this.error = 'Geçerli bir oyuncu bulunamadı.';
+      this.setError('Geçerli bir oyuncu bulunamadı.');
       return;
     }
 
@@ -94,7 +108,10 @@ export class RatingPanelComponent implements OnInit, OnChanges {
       },
       error: (err) => {
         console.error('Oy kullanılabilirlik kontrolü başarısız:', err);
-        this.error = err?.error?.message || 'Oy hakkı kontrol edilemedi.';
+
+        const message = this.getErrorMessage(err, 'Oy hakkı kontrol edilemedi.');
+        this.setError(message);
+
         this.isCheckingAvailability = false;
       }
     });
@@ -104,22 +121,22 @@ export class RatingPanelComponent implements OnInit, OnChanges {
     this.resetMessages();
 
     if (!this.playerId || this.playerId <= 0) {
-      this.error = 'Geçerli bir oyuncu bulunamadı.';
+      this.setError('Geçerli bir oyuncu bulunamadı.');
       return;
     }
 
     if (this.ratingValue == null || Number.isNaN(this.ratingValue)) {
-      this.error = 'Lütfen bir değer gir.';
+      this.setError('Lütfen bir değer gir.');
       return;
     }
 
     if (this.ratingValue < 0 || this.ratingValue > 100) {
-      this.error = 'Değer 0 ile 100 arasında olmalı.';
+      this.setError('Değer 0 ile 100 arasında olmalı.');
       return;
     }
 
     if (this.canVoteInfo && !this.canVoteInfo.canVote) {
-      this.error = this.canVoteInfo.message || 'Bu zaman aralığı için şu an oy veremezsiniz.';
+      this.setError(this.canVoteInfo.message || 'Bu zaman aralığı için şu an oy veremezsiniz.');
       return;
     }
 
@@ -134,18 +151,22 @@ export class RatingPanelComponent implements OnInit, OnChanges {
 
     this.ratingService.createRating(payload).subscribe({
       next: () => {
-        this.successMessage = 'Oyun başarıyla kaydedildi.';
         this.isSubmitting = false;
-
-        this.checkAvailability();
-        this.submitted.emit();
 
         this.ratingValue = null;
         this.comment = '';
+
+        this.setSuccess('Oyun başarıyla kaydedildi.');
+
+        this.checkAvailability();
+        this.submitted.emit();
       },
       error: (err) => {
         console.error('Oy gönderilemedi:', err);
-        this.error = err?.error?.message || 'Oy gönderilemedi.';
+
+        const message = this.getErrorMessage(err, 'Oy gönderilemedi.');
+        this.setError(message);
+
         this.isSubmitting = false;
       }
     });
@@ -153,6 +174,10 @@ export class RatingPanelComponent implements OnInit, OnChanges {
 
   closePanel(): void {
     this.closed.emit();
+  }
+
+  closeMessagePopup(): void {
+    this.showMessagePopup = false;
   }
 
   clampRating(): void {
@@ -202,8 +227,55 @@ export class RatingPanelComponent implements OnInit, OnChanges {
     return `Tekrar oy verebileceğin zaman: ${date.toLocaleString('tr-TR')}`;
   }
 
+  private setError(message: string): void {
+    this.error = message;
+    this.successMessage = '';
+    this.openMessagePopup(message, 'error');
+  }
+
+  private setSuccess(message: string): void {
+    this.successMessage = message;
+    this.error = '';
+    this.openMessagePopup(message, 'success');
+  }
+
+  private openMessagePopup(message: string, type: PopupType): void {
+    this.popupMessage = message;
+    this.popupType = type;
+    this.showMessagePopup = true;
+  }
+
+  private getErrorMessage(err: any, fallback: string): string {
+    if (err?.error?.message) {
+      return err.error.message;
+    }
+
+    if (typeof err?.error === 'string') {
+      return err.error;
+    }
+
+    switch (err?.status) {
+      case 401:
+        return 'Giriş yapmadınız. Oy verebilmek için lütfen giriş yapın.';
+      case 403:
+        return 'Bu işlem için yetkiniz yok.';
+      case 400:
+        return 'Gönderilen bilgiler hatalı.';
+      case 404:
+        return 'Oyuncu bulunamadı.';
+      case 409:
+        return 'Bu zaman aralığı için şu an tekrar oy veremezsiniz.';
+      case 0:
+        return 'Sunucuya ulaşılamıyor. Backend çalışıyor mu kontrol edin.';
+      default:
+        return fallback;
+    }
+  }
+
   private resetMessages(): void {
     this.error = '';
     this.successMessage = '';
+    this.showMessagePopup = false;
+    this.popupMessage = '';
   }
 }

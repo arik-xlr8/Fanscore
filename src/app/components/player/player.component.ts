@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { filter, map, distinctUntilChanged } from 'rxjs';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { filter, map, distinctUntilChanged, Subscription } from 'rxjs';
 
 import { PlayerService } from '../../services/player.service';
 import { RatingService } from '../../services/rating.service';
@@ -21,10 +21,14 @@ type PeriodKey = 'daily' | 'weekly' | 'monthly' | '3months' | '1year';
   templateUrl: './player.component.html',
   styleUrl: './player.component.css',
 })
-export class PlayerComponent implements OnInit {
+export class PlayerComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private playerService = inject(PlayerService);
   private ratingService = inject(RatingService);
+
+  private routeParamSubscription?: Subscription;
+  private queryParamSubscription?: Subscription;
 
   isLoading = false;
   error = '';
@@ -44,10 +48,46 @@ export class PlayerComponent implements OnInit {
     { key: '1year', label: '1 Yıl' },
   ];
 
-  selectedPeriod: PeriodKey = '3months';
+  selectedPeriod: PeriodKey = 'monthly';
 
   ngOnInit(): void {
-    this.route.paramMap
+    this.readPeriodFromUrl();
+    this.readPlayerIdFromUrl();
+  }
+
+  ngOnDestroy(): void {
+    this.routeParamSubscription?.unsubscribe();
+    this.queryParamSubscription?.unsubscribe();
+  }
+
+  selectPeriod(period: PeriodKey): void {
+    if (this.selectedPeriod === period) return;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { period },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  private readPeriodFromUrl(): void {
+    this.queryParamSubscription = this.route.queryParamMap.subscribe(params => {
+      const periodFromUrl = params.get('period') as PeriodKey | null;
+
+      const isValidPeriod = this.periods.some(p => p.key === periodFromUrl);
+
+      this.selectedPeriod = isValidPeriod && periodFromUrl
+        ? periodFromUrl
+        : 'monthly';
+
+      if (this.playerId != null) {
+        this.loadPlayer();
+      }
+    });
+  }
+
+  private readPlayerIdFromUrl(): void {
+    this.routeParamSubscription = this.route.paramMap
       .pipe(
         map(params => params.get('id')),
         filter((id): id is string => !!id),
@@ -66,12 +106,6 @@ export class PlayerComponent implements OnInit {
           this.error = 'Oyuncu bilgileri yüklenemedi.';
         }
       });
-  }
-
-  selectPeriod(period: PeriodKey): void {
-    if (this.selectedPeriod === period) return;
-    this.selectedPeriod = period;
-    this.loadPlayer();
   }
 
   private loadPlayer(): void {

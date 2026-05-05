@@ -74,6 +74,7 @@
         class="tile"
         *ngFor="let player of players; trackBy: trackById"
         [routerLink]="['/player', player.id]"
+        [queryParams]="{ period: selectedPeriod }"
         [ngStyle]="{
           'background-image': getBackgroundImage(player.ppUrl),
           'background-size': 'contain',

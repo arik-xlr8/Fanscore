@@ -58,6 +58,8 @@
         <app-rating-panel
           *ngIf="player"
           [playerId]="player.playerId"
+          [selectedPeriod]="selectedPeriod"
+          (periodChanged)="selectPeriod($event)"
         ></app-rating-panel>
 
         <section class="commentsSection">

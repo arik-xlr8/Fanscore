@@ -1,4 +1,30 @@
 <div class="rating-panel">
+  <div
+    class="message-popup"
+    *ngIf="showMessagePopup"
+    [class.message-popup--success]="popupType === 'success'"
+    [class.message-popup--error]="popupType === 'error'"
+  >
+    <div class="message-popup__content">
+      <div class="message-popup__title">
+        {{ popupType === 'success' ? 'Başarılı' : 'Uyarı' }}
+      </div>
+
+      <div class="message-popup__text">
+        {{ popupMessage }}
+      </div>
+    </div>
+
+    <button
+      type="button"
+      class="message-popup__close"
+      (click)="closeMessagePopup()"
+      aria-label="Mesajı kapat"
+    >
+      ×
+    </button>
+  </div>
+
   <div class="rating-panel__header">
     <h3 class="rating-panel__title">Fiyat Tahmini Yap</h3>
     <p class="rating-panel__subtitle">
@@ -8,7 +34,8 @@
 
   <div class="rating-panel__body">
     <div class="form-group">
-      <label for="periodType">Zaman Aralığı (Geçtiğimiz) </label>
+      <label for="periodType">Zaman Aralığı (Geçtiğimiz)</label>
+
       <select
         id="periodType"
         class="input"
@@ -23,6 +50,7 @@
 
     <div class="form-group">
       <label for="ratingValue">Değer (€)</label>
+
       <input
         id="ratingValue"
         type="number"
@@ -38,6 +66,7 @@
 
     <div class="form-group">
       <label for="comment">Yorum (opsiyonel)</label>
+
       <textarea
         id="comment"
         class="input textarea"

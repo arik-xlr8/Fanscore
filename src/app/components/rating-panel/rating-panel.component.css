@@ -113,3 +113,66 @@
 .btn--primary:hover{
   background-color: rgb(242, 255, 240);
 }
+
+
+.message-popup {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1.5px solid #facc15;
+  border-radius: 14px;
+  background: #fffbeb;
+  color: #713f12;
+  box-shadow: 0 12px 30px rgba(120, 80, 0, 0.12);
+}
+
+.message-popup--success {
+  border-color: #facc15;
+  background: #fffbeb;
+  color: #365314;
+}
+
+.message-popup--error {
+  border-color: #facc15;
+  background: #fffbeb;
+  color: #7f1d1d;
+}
+
+.message-popup__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.message-popup__title {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.message-popup__text {
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.message-popup__close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(250, 204, 21, 0.25);
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.message-popup__close:hover {
+  background: rgba(250, 204, 21, 0.45);
+  transform: scale(1.05);
+}
